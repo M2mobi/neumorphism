@@ -17,6 +17,8 @@ annotation class LightSource {
         const val LEFT_BOTTOM = 1
         const val RIGHT_TOP = 2
         const val RIGHT_BOTTOM = 3
+        const val CENTER_TOP = 4
+        const val CENTER_BOTTOM = 5
 
         const val DEFAULT = LEFT_TOP
 
@@ -25,7 +27,7 @@ annotation class LightSource {
         }
 
         fun isTop(@LightSource lightSource: Int): Boolean {
-            return lightSource == LEFT_TOP || lightSource == RIGHT_TOP
+            return lightSource == LEFT_TOP || lightSource == RIGHT_TOP || lightSource == CENTER_TOP
         }
 
         fun isRight(@LightSource lightSource: Int): Boolean {
@@ -33,7 +35,11 @@ annotation class LightSource {
         }
 
         fun isBottom(@LightSource lightSource: Int): Boolean {
-            return lightSource == LEFT_BOTTOM || lightSource == RIGHT_BOTTOM
+            return lightSource == LEFT_BOTTOM || lightSource == RIGHT_BOTTOM || lightSource == CENTER_BOTTOM
+        }
+
+        fun isCenter(@LightSource lightSource: Int): Boolean {
+            return lightSource == CENTER_TOP || lightSource == CENTER_BOTTOM
         }
     }
 }

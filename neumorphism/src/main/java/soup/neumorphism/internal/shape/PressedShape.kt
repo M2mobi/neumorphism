@@ -11,6 +11,7 @@ import soup.neumorphism.NeumorphShapeDrawable.NeumorphShapeDrawableState
 import soup.neumorphism.internal.util.onCanvas
 import soup.neumorphism.internal.util.withClip
 import soup.neumorphism.internal.util.withTranslation
+import kotlin.math.max
 import kotlin.math.min
 
 internal class PressedShape(
@@ -96,6 +97,8 @@ internal class PressedShape(
                 LightSource.LEFT_BOTTOM -> getTopRightCornerSize()
                 LightSource.RIGHT_TOP -> getBottomRightCornerSize()
                 LightSource.RIGHT_BOTTOM -> getTopLeftCornerSize()
+                LightSource.CENTER_TOP -> max(getTopRightCornerSize(), getTopLeftCornerSize())
+                LightSource.CENTER_BOTTOM -> max(getBottomRightCornerSize(), getBottomLeftCornerSize())
                 else -> throw IllegalStateException("LightSource ${drawableState.lightSource} is not supported.")
             }
         }
@@ -107,6 +110,8 @@ internal class PressedShape(
             LightSource.LEFT_BOTTOM -> floatArrayOf(0f, 0f, cornerSize, cornerSize, 0f, 0f, 0f, 0f)
             LightSource.RIGHT_TOP -> floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, cornerSize, cornerSize)
             LightSource.RIGHT_BOTTOM -> floatArrayOf(cornerSize, cornerSize, 0f, 0f, 0f, 0f, 0f, 0f)
+            LightSource.CENTER_TOP -> floatArrayOf(0f, 0f, 0f, 0f, cornerSize, cornerSize, cornerSize, cornerSize)
+            LightSource.CENTER_BOTTOM -> floatArrayOf(cornerSize, cornerSize, cornerSize, cornerSize, 0f, 0f, 0f, 0f)
             else -> throw IllegalStateException("LightSource ${drawableState.lightSource} is not supported.")
         }
     }
@@ -118,6 +123,8 @@ internal class PressedShape(
                 LightSource.LEFT_BOTTOM -> getBottomLeftCornerSize()
                 LightSource.RIGHT_TOP -> getTopRightCornerSize()
                 LightSource.RIGHT_BOTTOM -> getBottomRightCornerSize()
+                LightSource.CENTER_TOP -> max(getTopRightCornerSize(), getTopLeftCornerSize())
+                LightSource.CENTER_BOTTOM -> max(getBottomRightCornerSize(), getBottomLeftCornerSize())
                 else -> throw IllegalStateException("LightSource ${drawableState.lightSource} is not supported.")
             }
         }
@@ -129,6 +136,8 @@ internal class PressedShape(
             LightSource.LEFT_BOTTOM -> floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, cornerSize, cornerSize)
             LightSource.RIGHT_TOP -> floatArrayOf(0f, 0f, cornerSize, cornerSize, 0f, 0f, 0f, 0f)
             LightSource.RIGHT_BOTTOM -> floatArrayOf(0f, 0f, 0f, 0f, cornerSize, cornerSize, 0f, 0f)
+            LightSource.CENTER_TOP -> floatArrayOf(cornerSize, cornerSize, cornerSize, cornerSize, 0f, 0f, 0f, 0f)
+            LightSource.CENTER_BOTTOM -> floatArrayOf(0f, 0f, 0f, 0f, cornerSize, cornerSize, cornerSize, cornerSize)
             else -> throw IllegalStateException("LightSource ${drawableState.lightSource} is not supported.")
         }
     }
@@ -146,18 +155,34 @@ internal class PressedShape(
         return Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
             .onCanvas {
                 withTranslation(
-                    x = if (LightSource.isLeft(lightSource)) -shadowElevation else 0f,
+                    x = calculateLightShadowOffsetX(lightSource, shadowElevation),
                     y = if (LightSource.isTop(lightSource)) -shadowElevation else 0f
                 ) {
                     lightShadowDrawable.draw(this)
                 }
                 withTranslation(
-                    x = if (LightSource.isRight(lightSource)) -shadowElevation else 0f,
+                    x = calculateDarkShadowOffsetX(lightSource, shadowElevation),
                     y = if (LightSource.isBottom(lightSource)) -shadowElevation else 0f
                 ) {
                     darkShadowDrawable.draw(this)
                 }
             }
             .blurred()
+    }
+
+    private fun calculateLightShadowOffsetX(@LightSource lightSource: Int, elevation: Float): Float {
+        return when {
+            LightSource.isLeft(lightSource) -> -elevation
+            LightSource.isRight(lightSource) -> 0F
+            else -> -elevation / 2F
+        }
+    }
+
+    private fun calculateDarkShadowOffsetX(@LightSource lightSource: Int, elevation: Float): Float {
+        return when {
+            LightSource.isRight(lightSource) -> -elevation
+            LightSource.isLeft(lightSource) -> 0F
+            else -> -elevation / 2F
+        }
     }
 }

@@ -38,15 +38,31 @@ internal class FlatShape(
             val left = inset.left.toFloat()
             val top = inset.top.toFloat()
             lightShadowBitmap?.let {
-                val offsetX = if (LightSource.isLeft(lightSource)) -elevation - z else -elevation + z
+                val offsetX = calculateLightShadowOffsetX(lightSource, z, elevation)
                 val offsetY = if (LightSource.isTop(lightSource)) -elevation - z else -elevation + z
                 drawBitmap(it, offsetX + left, offsetY + top, null)
             }
             darkShadowBitmap?.let {
-                val offsetX = if (LightSource.isLeft(lightSource)) -elevation + z else -elevation - z
+                val offsetX = calculateDarkShadowOffsetX(lightSource, z, elevation)
                 val offsetY = if (LightSource.isTop(lightSource)) -elevation + z else -elevation - z
                 drawBitmap(it, offsetX + left, offsetY + top, null)
             }
+        }
+    }
+
+    private fun calculateLightShadowOffsetX(@LightSource lightSource: Int, z: Float, elevation: Float): Float {
+        return when {
+            LightSource.isLeft(lightSource) -> -elevation - z
+            LightSource.isRight(lightSource) -> -elevation + z
+            else -> -elevation
+        }
+    }
+
+    private fun calculateDarkShadowOffsetX(@LightSource lightSource: Int, z: Float, elevation: Float): Float {
+        return when {
+            LightSource.isLeft(lightSource) -> -elevation + z
+            LightSource.isRight(lightSource) -> -elevation - z
+            else -> -elevation
         }
     }
 
