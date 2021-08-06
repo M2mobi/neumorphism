@@ -143,6 +143,8 @@ internal class PressedShape(
     }
 
     private fun generateShadowBitmap(w: Int, h: Int): Bitmap? {
+        if (w <= 0 || h <= 0) return null
+
         fun Bitmap.blurred(): Bitmap? {
             if (drawableState.inEditMode) {
                 return this
